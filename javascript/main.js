@@ -1,6 +1,9 @@
 alert("Bienvenido al hospital...");
 console.log ("Bienvenido al hospital... (esto es un simulacro)");
 
+const pacientesRegistrados = ["Juan", "María","Lucas"];
+
+
 function sucursal(){
 
  let sucursal = parseInt(prompt("Ingresa la sucursal que va a elegir para ir al turno \n 1.Almagro \n 2.Devoto \n 3.Palermo \n 4.Colegiales \n 5.Vicente Lopez \n 6.Villa Luro  \n0.Para salir"));
@@ -41,35 +44,83 @@ function sucursal(){
  
 }
 
+
+iniciarSimulador();
+
+
+function iniciarSimulador() {
  
- let sucursalElegida = sucursal();
+  let sucursalElegida = sucursal();
+
+  if (!sucursalElegida) {
+    alert("No elegiste ninguna sucursal...\nSaliendo del programa.");
+    console.log("No elegiste ninguna sucursal por ende termina el programa...");
+    return;
+  }
 
 
-    if (!sucursalElegida) {
+  alert("Tu turno será en: " + sucursalElegida);
 
-        alert("No elegiste ninguna sucursal... \n  Saliendo del programa.");
-        console.log("No elegiste ninguna sucursal por ende termina el programa...")
-    
+
+ const Nombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+
+  let nuevo = prompt("Ingrese su nombre para agregar al sistema (solo letras):");
+
+  if (nuevo !== null) {
+    nuevo = nuevo.trim(); // me saca espacios si los hayy
+
+    if (nuevo === "" || !Nombre.test(nuevo)) {
+      alert("Nombre inválido: solo se permiten letras y espacios.");
     } else {
-        alert("Tu turno será en: " + sucursalElegida);
-    
-
- let datosPaciente = pedirDatosPaciente();
-
-    if (!datosPaciente) {
-        alert("No se ingresaron datos. Saliendo del sistema.");
-    } else {
-    IngresoOpciones(datosPaciente,sucursalElegida);
+      pacientesRegistrados.push(nuevo);
+      alert("✅ Paciente agregado: " + nuevo);
     }
-   }
+  }
 
 
-function pedirDatosPaciente() {
+  pacientesRegistrados.forEach(function(nombreActual, i) {
+
+  alert("Atendiendo paciente (" + (i + 1) + "/" + pacientesRegistrados.length + "): " + nombreActual);
+
+
+  let datosPaciente = pedirDatosPaciente(nombreActual);
+
+  if (!datosPaciente) {
+    alert("Se canceló el registro de " + nombreActual + ". Se pasa al siguiente.");
+    return; 
+  }
+
+  IngresoOpciones(datosPaciente, sucursalElegida);
+});
+
+ 
+  let agregarOtro = prompt("¿Querés agregar otro paciente al sistema?\n1 = Sí\n0 = No");
+
+if (agregarOtro === "1") {
+  let otro = prompt("Ingrese el nombre del nuevo paciente:");
+  if (otro !== null) {
+    otro = otro.trim();
+    if (otro !== "") {
+      pacientesRegistrados.push(otro);
+      alert("✅ Agregado: " + otro);
+    }
+  }
+}
+
+  alert("✅ Se atendieron todos los pacientes. Fin del simulador.");
+}
+
+
+
+
+function pedirDatosPaciente(nombreFijo) {
    const Nombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-   const Dni = /^\d{9}$/ ;
+   const Dni = /^\d{8}$/ ;
    
-   let nombre, dni,edad;
+   let nombre = nombreFijo; 
+   let dni,edad;
 
+  if (!nombreFijo){ 
    while (true){
      nombre = prompt("Ingrese su nombre,(solo letras)");
       if (nombre === null) {
@@ -82,9 +133,11 @@ function pedirDatosPaciente() {
         continue;
       }
       break;
-}
+   }
+  }
+
     while(true) {
-      dni = prompt("Ingrese su DNI: (SOLO 9 CIFRAS, solo numeros)")
+      dni = prompt("Ingrese su DNI: (SOLO 8 CIFRAS, solo numeros)")
       
       if (dni === null) {
        alert("Registro cancelado");
@@ -93,7 +146,7 @@ function pedirDatosPaciente() {
       }
        dni = dni.trim();
        if (!Dni.test(dni)) {
-         alert("Dni invalido: debe tener exactamente 9 cifras");
+         alert("Dni invalido: debe tener exactamente 8 cifras");
          continue;
        }
       break;
@@ -119,6 +172,8 @@ function pedirDatosPaciente() {
         } 
         break;
      }
+
+   
      return{
 
         nombre,
@@ -137,7 +192,23 @@ function calcularPrecioConsulta(datosPaciente,especialidad,PrecioBase){
   return Math.round(precio);
 }
 
+function mostrarPacientesRegistrados() {
+  if (pacientesRegistrados.length === 0) {
+    alert("No hay pacientes registrados todavía.");
+    return;
+  }
+
+  let lista = "📌 Pacientes registrados:\n\n";
+
+  pacientesRegistrados.forEach(function(nombre, i) {
+    lista += (i + 1) + ". " + nombre + "\n";
+  });
+
+  alert(lista);
+}
+
 function mostrarResumenFinal(datosPaciente, sucursalElegida, consultas, total) {
+
   alert(
     "Sucursal: " + sucursalElegida + "\n" +
     "Consulta finalizada.\n\n" +
@@ -151,6 +222,7 @@ function mostrarResumenFinal(datosPaciente, sucursalElegida, consultas, total) {
 }
 
 
+
 function IngresoOpciones(datosPaciente,sucursalElegida) {
 
   let opcion;
@@ -161,7 +233,7 @@ function IngresoOpciones(datosPaciente,sucursalElegida) {
 
   do {
     console.log("Entraste en el formulario para turno en hospital");
-
+    
     opcion = parseInt(prompt(
       "Seleccione una opción:\n" +
       "1. Pediatría\n" +
@@ -170,6 +242,7 @@ function IngresoOpciones(datosPaciente,sucursalElegida) {
       "4. Odontología\n" +
       "5. Oncología\n" +
       "6. Cardiología\n" +
+      "7. Ver pacientes registrados\n" +
       "0. Salir del hospital"
     ));
 
@@ -198,6 +271,9 @@ function IngresoOpciones(datosPaciente,sucursalElegida) {
         especialidad = "Cardiología";
         alert("Ingreso a " + especialidad);
         break;
+      case 7:
+        mostrarPacientesRegistrados();
+        continue;
       case 0:
         alert("Saliendo del simulador...");
         break;
@@ -221,12 +297,11 @@ function IngresoOpciones(datosPaciente,sucursalElegida) {
 
     if (salida === 1) {
             mostrarResumenFinal(datosPaciente,sucursalElegida,consultas,total);
-            break;
+            return;
             }
 
   } while (opcion !== 0);
 }
-
 
 
 
