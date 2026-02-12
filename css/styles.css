@@ -1,0 +1,21 @@
+footer {
+  background: linear-gradient(
+    135deg,
+    rgba(100, 116, 141, 0.342),
+    rgba(14, 47, 95, 0.12)
+  );
+}
+
+
+footer span {
+  color: #131414;
+}
+
+.btn-primary {
+  transition: all .25s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 18px rgba(0,0,0,.25);
+}

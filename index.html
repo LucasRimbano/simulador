@@ -1,15 +1,218 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Simulador primera entrega</title>
-    <script defer src="javascript/main.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <title>Simulador Hospital</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <script defer src="/javascript/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
- <div>
-   <h1>Creado por lucas rimbano.</h1> 
- </div>   
+
+<body class="bg-light d-flex flex-column min-vh-100">
+
+   <div class="container">
+     <div class="d-flex justify-content-center">
+        <p class="estado-hover d-inline-flex gap-1">
+          <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+          Estado del hospital
+          </a>
+        </p>
+     </div>
+
+        <div class="collapse" id="collapseExample">
+          <div class="card card-body">
+            Abierto 24 horas. Emergencias: 107. Turnos online activos.
+          </div>
+        </div>
+   </div>
+
+  <div class="container py-4">
+
+    <div id="mensaje" class="alert alert-info">
+      Bienvenido al hospital. Elegí sucursal para comenzar.
+    </div>
+
+
+    <div class="row g-4">
+
+      <!--COLUMNA IZQUIERDA  -->
+      <div class="col-12 col-lg-6">
+
+    
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">🏥 Sucursal</h2>
+
+            <select id="sucursal" class="form-select mt-2">
+              <option value="">Seleccioná una sucursal...</option>
+              <option value="Almagro">Almagro</option>
+              <option value="Devoto">Devoto</option>
+              <option value="Palermo">Palermo</option>
+              <option value="Colegiales">Colegiales</option>
+              <option value="Vicente López">Vicente López</option>
+              <option value="Villa Luro">Villa Luro</option>
+            </select>
+
+          </div>
+        </div>
+
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">👤 Registrar paciente</h2>
+
+            <input id="nombre" class="form-control mt-2" placeholder="Nombre" />
+            <input id="dni" class="form-control mt-2" placeholder="DNI (8 cifras)" />
+            <input id="edad" class="form-control mt-2" placeholder="Edad (1-99)" />
+
+            <div class="d-grid gap-2 mt-3">
+              <button class="btn btn-success" id="btn-agregar-paciente">
+                ➕ Agregar paciente
+              </button>
+
+              <button class="btn btn-outline-secondary" id="btn-ver-pacientes">
+                📋 Ver pacientes registrados
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">🩺 Consulta</h2>
+
+            <select id="especialidad" class="form-select mt-2">
+              <option value="">Elegí especialidad...</option>
+              <option>Pediatría</option>
+              <option>Traumatología</option>
+              <option>Psiquiatría</option>
+              <option>Odontología</option>
+              <option>Oncología</option>
+              <option>Cardiología</option>
+            </select>
+
+            <div class="d-grid gap-2 mt-3">
+              <button class="btn btn-primary" id="btn-agregar-consulta">
+                ➕ Agregar consulta
+              </button>
+
+              <button class="btn btn-warning" id="btn-finalizar">
+                ✅ Finalizar consulta
+              </button>
+
+              <button class="btn btn-outline-danger" id="btn-vaciar">
+                🧹 Reiniciar
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- COLUMNA DERECHA -->
+      <div class="col-12 col-lg-6">
+
+     
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">📊 Estado</h2>
+
+            <div id="estado-app" class="text-muted mt-2">
+              Elegí sucursal, registrá un paciente y cargá consultas.
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+              <span class="fw-bold">Consultas: <span id="contador">0</span></span>
+              <span class="fw-bold">TOTAL: <span id="total">$0</span></span>
+            </div>
+
+          </div>
+        </div>
+
+
+        
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">🛒 Carrito de consultas</h2>
+
+            <div id="carrito" class="mt-3">
+              <div class="text-muted">Todavía no hay consultas.</div>
+            </div>
+
+          </div>
+        </div>
+
+
+    
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">📌 Pacientes registrados</h2>
+
+            <div id="pacientesBox" class="text-muted">
+              Aún no se mostró la lista.
+            </div>
+
+          </div>
+        </div>
+
+
+       
+        <div class="card shadow-sm">
+          <div class="card-body">
+
+            <h2 class="h5 fw-bold">🧾 Resumen final</h2>
+
+            <div id="resumen" class="text-muted">
+              Todavía no finalizaste ninguna consulta.
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+ 
+  <footer class="bg-white border-top mt-5 mt-auto">
+    <div class="container">
+
+      <div class="row text-center text-md-start align-items-center">
+
+        <!-- izquierda -->
+        <div class="col-12 col-md-6  fs-6 text-muted">
+          © 2026 Hospital Central — Sistema de Gestión de Pacientes
+        </div>
+
+        <!-- derecha -->
+        <div class="col-12 col-md-6 text-md-end  fs-6">
+          <span class="text-muted">Emergencias 24hs:</span>
+          <span class="fw-bold text-danger"> 107</span>
+          <span class="mx-2">|</span>
+          <span class="text-muted">Turnos online activos</span>
+        </div>
+
+      </div>
+
+    </div>
+  </footer>
+
 </body>
-</html>   
+</html>

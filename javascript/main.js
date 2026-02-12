@@ -1,307 +1,293 @@
-alert("Bienvenido al hospital...");
-console.log ("Bienvenido al hospital... (esto es un simulacro)");
-
-const pacientesRegistrados = ["Juan", "María","Lucas"];
-
-
-function sucursal(){
-
- let sucursal = parseInt(prompt("Ingresa la sucursal que va a elegir para ir al turno \n 1.Almagro \n 2.Devoto \n 3.Palermo \n 4.Colegiales \n 5.Vicente Lopez \n 6.Villa Luro  \n0.Para salir"));
-
-   switch (sucursal) {
-    case 1:
-      alert("Ingreso a la sucursal Almagro");
-      return "Almagro";
-
-    case 2:
-      alert("Ingreso a la sucursal Devoto");
-      return "Devoto";
-
-    case 3:
-      alert("Ingreso a la sucursal Palermo");
-      return "Palermo";
-
-    case 4:
-      alert("Ingreso a la sucursal Colegiales");
-      return "Colegiales";
-
-    case 5:
-      alert("Ingreso a la sucursal Vicente López");
-      return "Vicente López";
-
-    case 6:
-      alert("Ingreso a la sucursal Villa Luro");
-      return "Villa Luro";
-
-    case 0:
-      alert("Selección de sucursal cancelada...");
-      return null;
-
-    default:
-      alert("Opción de sucursal no válida.");
-      return null;
-  }
- 
-}
-
-
-iniciarSimulador();
-
-
-function iniciarSimulador() {
- 
-  let sucursalElegida = sucursal();
-
-  if (!sucursalElegida) {
-    alert("No elegiste ninguna sucursal...\nSaliendo del programa.");
-    console.log("No elegiste ninguna sucursal por ende termina el programa...");
-    return;
-  }
-
-
-  alert("Tu turno será en: " + sucursalElegida);
-
-
- const Nombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-
-  let nuevo = prompt("Ingrese su nombre para agregar al sistema (solo letras):");
-
-  if (nuevo !== null) {
-    nuevo = nuevo.trim(); // me saca espacios si los hayy
-
-    if (nuevo === "" || !Nombre.test(nuevo)) {
-      alert("Nombre inválido: solo se permiten letras y espacios.");
-    } else {
-      pacientesRegistrados.push(nuevo);
-      alert("✅ Paciente agregado: " + nuevo);
-    }
-  }
-
-
-  pacientesRegistrados.forEach(function(nombreActual, i) {
-
-  alert("Atendiendo paciente (" + (i + 1) + "/" + pacientesRegistrados.length + "): " + nombreActual);
-
-
-  let datosPaciente = pedirDatosPaciente(nombreActual);
-
-  if (!datosPaciente) {
-    alert("Se canceló el registro de " + nombreActual + ". Se pasa al siguiente.");
-    return; 
-  }
-
-  IngresoOpciones(datosPaciente, sucursalElegida);
-});
-
- 
-  let agregarOtro = prompt("¿Querés agregar otro paciente al sistema?\n1 = Sí\n0 = No");
-
-if (agregarOtro === "1") {
-  let otro = prompt("Ingrese el nombre del nuevo paciente:");
-  if (otro !== null) {
-    otro = otro.trim();
-    if (otro !== "") {
-      pacientesRegistrados.push(otro);
-      alert("✅ Agregado: " + otro);
-    }
+class Paciente {
+  constructor(nombre, dni, edad) {
+    this.nombre = nombre;
+    this.dni = dni;
+    this.edad = edad;
   }
 }
 
-  alert("✅ Se atendieron todos los pacientes. Fin del simulador.");
+class Consulta {
+  constructor(especialidad, precio) {
+    this.especialidad = especialidad;
+    this.precio = precio;
+  }
 }
 
-
-
-
-function pedirDatosPaciente(nombreFijo) {
-   const Nombre = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-   const Dni = /^\d{8}$/ ;
-   
-   let nombre = nombreFijo; 
-   let dni,edad;
-
-  if (!nombreFijo){ 
-   while (true){
-     nombre = prompt("Ingrese su nombre,(solo letras)");
-      if (nombre === null) {
-        alert("Registro cancelado...")
-        return;
-      }
-     nombre = nombre.trim();
-      if (!Nombre.test(nombre)) {
-        alert("Nombre invalilo:solo se permiten letras nada de caracteres raros ni numeros. ");
-        continue;
-      }
-      break;
-   }
+class HospitalApp {
+  constructor() {
+    this.pacientes = ["Juan", "María", "Lucas"];
+    this.pacienteActual = null;
+    this.sucursalElegida = "";
+    this.consultas = [];
+    this.total = 0;
+    this.PRECIO_BASE = 100;
   }
 
-    while(true) {
-      dni = prompt("Ingrese su DNI: (SOLO 8 CIFRAS, solo numeros)")
-      
-      if (dni === null) {
-       alert("Registro cancelado");
-       return;
+  setSucursal(sucursal) {
+    this.sucursalElegida = sucursal;
+  }
 
-      }
-       dni = dni.trim();
-       if (!Dni.test(dni)) {
-         alert("Dni invalido: debe tener exactamente 8 cifras");
-         continue;
-       }
-      break;
-    }
+  agregarPaciente(nombre, dni, edad) {
+    this.pacienteActual = new Paciente(nombre, dni, edad);
+    this.pacientes.push(nombre);
+  }
 
+  agregarConsulta(especialidad) {
+    const precio = calcularPrecioConsulta(this.pacienteActual.edad, this.PRECIO_BASE);
+    const c = new Consulta(especialidad, precio);
+    this.consultas.push(c);
+    this.total += precio;
+  }
 
-  
-    while (true ){
-        let Edad = prompt("Ingrese su edad: (1 al 99)");
-        if (Edad === null) {
-            alert("Registro cancelado...");
-            return;
-        }
-        edad = Number(Edad);
-
-        if (Number.isNaN(edad) ){
-            alert("Edad invalida: debe ser numero entero...");
-            continue;
-        }
-        if (edad <= 0 || edad >= 100) {
-            alert("Edad invalida: debe ser un numero entre 1 y 99");
-            continue;
-        } 
-        break;
-     }
-
-   
-     return{
-
-        nombre,
-        dni,
-        edad
-     };
+  reset() {
+    this.pacienteActual = null;
+    this.sucursalElegida = "";
+    this.consultas = [];
+    this.total = 0;
+  }
 }
 
-function calcularPrecioConsulta(datosPaciente,especialidad,PrecioBase){
-    let precio = PrecioBase ;
 
-    if (datosPaciente.edad <12  || datosPaciente.edad >= 65) {
-       precio *= 0.8;  // 20% off
-    }
-    // Redondeo
+const app = new HospitalApp();
+
+
+const sucursal = document.getElementById("sucursal");
+const Nombre = document.getElementById("nombre");
+const Dni = document.getElementById("dni");
+const elEdad = document.getElementById("edad");
+const Especialidad = document.getElementById("especialidad");
+
+const btnAgregarPaciente = document.getElementById("btn-agregar-paciente");
+const btnVerPacientes = document.getElementById("btn-ver-pacientes");
+const btnAgregarConsulta = document.getElementById("btn-agregar-consulta");
+const btnFinalizar = document.getElementById("btn-finalizar");
+const btnVaciar = document.getElementById("btn-vaciar");
+
+const Estado = document.getElementById("estado-app");
+const Carrito = document.getElementById("carrito");
+const Contador = document.getElementById("contador");
+const Total = document.getElementById("total");
+const resumen = document.getElementById("resumen");
+
+const Mensaje = document.getElementById("mensaje");
+const pacientesBox = document.getElementById("pacientesBox");
+
+
+
+function setMensaje(texto, tipo = "info") {
+  if (!Mensaje) return;
+  Mensaje.className = `alert alert-${tipo}`;
+  Mensaje.textContent = texto;
+}
+
+
+function esNombreValido(nombre) {
+  return /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre.trim());
+}
+
+function esDniValido(dni) {
+  return /^\d{8}$/.test(dni.trim());
+}
+
+function esEdadValida(edad) {
+  const n = Number(edad);
+  return !isNaN(n) && Number.isInteger(n) && n >= 1 && n <= 99;
+}
+
+
+function calcularPrecioConsulta(edad, precioBase) {
+  let precio = precioBase;
+  if (edad < 12 || edad >= 65) precio *= 0.8;
   return Math.round(precio);
 }
 
-function mostrarPacientesRegistrados() {
-  if (pacientesRegistrados.length === 0) {
-    alert("No hay pacientes registrados todavía.");
+
+const STORAGE_KEY = "hospitalApp_v1";
+
+function guardarStorage() {
+  const data = {
+    pacientes: app.pacientes,
+    sucursalElegida: app.sucursalElegida,
+    total: app.total,
+    PRECIO_BASE: app.PRECIO_BASE,
+
+    pacienteActual: app.pacienteActual
+      ? { nombre: app.pacienteActual.nombre, dni: app.pacienteActual.dni, edad: app.pacienteActual.edad }
+      : null,
+
+    consultas: app.consultas.map(function (c) {
+      return { especialidad: c.especialidad, precio: c.precio };
+    })
+  };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function cargarStorage() {
+  const datosGuardados = localStorage.getItem(STORAGE_KEY);
+  if (!datosGuardados) return;
+
+  const data = JSON.parse(datosGuardados);
+
+  app.pacientes = Array.isArray(data.pacientes) ? data.pacientes : ["Juan", "María", "Lucas"];
+  app.sucursalElegida = data.sucursalElegida || "";
+  app.total = typeof data.total === "number" ? data.total : 0;
+  app.PRECIO_BASE = typeof data.PRECIO_BASE === "number" ? data.PRECIO_BASE : 100;
+
+  app.pacienteActual = data.pacienteActual
+    ? new Paciente(data.pacienteActual.nombre, data.pacienteActual.dni, data.pacienteActual.edad)
+    : null;
+
+  app.consultas = Array.isArray(data.consultas)
+    ? data.consultas.map(function (c) {
+        return new Consulta(c.especialidad, c.precio);
+      })
+    : [];
+}
+
+function limpiarStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+
+function render() {
+ 
+  Carrito.innerHTML = "";
+
+  if (app.consultas.length === 0) {
+    Carrito.innerHTML = `<div class="text-muted">Todavía no hay consultas.</div>`;
+  } else {
+    app.consultas.forEach(function (c, i) {
+      Carrito.innerHTML += `
+        <div class="border rounded-3 p-3 mb-2">
+          <div class="d-flex justify-content-between">
+            <strong>${i + 1}. ${c.especialidad}</strong>
+            <span class="fw-semibold">$${c.precio}</span>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  Contador.textContent = String(app.consultas.length);
+  Total.textContent = `$${app.total}`;
+
+  // estado
+  let msg = "Elegí sucursal, registrá un paciente y cargá consultas.";
+  if (app.sucursalElegida) msg = `Sucursal: ${app.sucursalElegida}.`;
+  if (app.pacienteActual) msg += ` Paciente: ${app.pacienteActual.nombre} (${app.pacienteActual.edad}).`;
+  Estado.textContent = msg;
+
+  // actualizo  sucursal si viene de storage
+  if (sucursal && app.sucursalElegida) {
+    sucursal.value = app.sucursalElegida;
+  }
+}
+
+
+sucursal.addEventListener("change", function () {
+  app.setSucursal(sucursal.value);
+  setMensaje(app.sucursalElegida ? `Sucursal seleccionada: ${app.sucursalElegida}` : "Elegí una sucursal.", "secondary");
+  guardarStorage();
+  render();
+});
+
+btnAgregarPaciente.addEventListener("click", function () {
+  const suc = sucursal.value;
+  if (!suc) return setMensaje("❌ Elegí una sucursal primero.", "danger");
+
+  const nombre = Nombre.value.trim();
+  const dni = Dni.value.trim();
+  const edadStr = elEdad.value.trim();
+
+  if (!nombre || !esNombreValido(nombre)) return setMensaje("❌ Nombre inválido (solo letras y espacios).", "danger");
+  if (!dni || !esDniValido(dni)) return setMensaje("❌ DNI inválido (8 cifras).", "danger");
+  if (!edadStr || !esEdadValida(edadStr)) return setMensaje("❌ Edad inválida (1 a 99).", "danger");
+
+  app.agregarPaciente(nombre, dni, Number(edadStr));
+
+  setMensaje("✅ Paciente agregado: " + nombre, "success");
+
+  Nombre.value = "";
+  Dni.value = "";
+  elEdad.value = "";
+
+  guardarStorage();
+  render();
+});
+
+btnVerPacientes.addEventListener("click", function () {
+  if (!pacientesBox) {
+    setMensaje("⚠️ Falta el contenedor #pacientesBox en el HTML.", "warning");
     return;
   }
 
-  let lista = "📌 Pacientes registrados:\n\n";
+  if (app.pacientes.length === 0) {
+    pacientesBox.innerHTML = `<div class="text-muted">No hay pacientes registrados todavía.</div>`;
+    setMensaje("ℹ️ No hay pacientes registrados todavía.", "secondary");
+    return;
+  }
 
-  pacientesRegistrados.forEach(function(nombre, i) {
-    lista += (i + 1) + ". " + nombre + "\n";
+  let html = `<h3 class="h6 fw-bold mt-3">📌 Pacientes registrados</h3><ol class="mb-0">`;
+  app.pacientes.forEach(function (n) {
+    html += `<li>${n}</li>`;
   });
+  html += `</ol>`;
 
-  alert(lista);
-}
+  pacientesBox.innerHTML = html;
+  setMensaje("📌 Lista de pacientes mostrada.", "secondary");
+});
 
-function mostrarResumenFinal(datosPaciente, sucursalElegida, consultas, total) {
+btnAgregarConsulta.addEventListener("click", function () {
+  if (!app.sucursalElegida) return setMensaje("❌ Elegí una sucursal.", "danger");
+  if (!app.pacienteActual) return setMensaje("❌ Primero registrá un paciente.", "danger");
 
-  alert(
-    "Sucursal: " + sucursalElegida + "\n" +
-    "Consulta finalizada.\n\n" +
-    "Paciente: " + datosPaciente.nombre + "\n" +
-    "DNI: " + datosPaciente.dni + "\n" +
-    "Edad: " + datosPaciente.edad + "\n\n" +
-    "Cantidad de consultas: " + consultas + "\n" +
-    "TOTAL a pagar: $" + total + "\n\n" +
-    "Gracias por usar el simulador."
-  );
-}
+  const esp = Especialidad.value;
+  if (!esp) return setMensaje("❌ Elegí una especialidad.", "danger");
 
+  app.agregarConsulta(esp);
+  setMensaje("✅ Consulta agregada: " + esp, "success");
 
+  guardarStorage();
+  render();
+});
 
-function IngresoOpciones(datosPaciente,sucursalElegida) {
+btnFinalizar.addEventListener("click", function () {
+  if (!app.sucursalElegida) return setMensaje("❌ Elegí una sucursal.", "danger");
+  if (!app.pacienteActual) return setMensaje("❌ Registrá un paciente.", "danger");
+  if (app.consultas.length === 0) return setMensaje("❌ No hay consultas para finalizar.", "danger");
 
-  let opcion;
-  let especialidad = "";
-  const PRECIO_BASE = 100 ;
-  let total = 0 ;
-  let consultas = 0 ;
+  resumen.innerHTML = `
+    <div class="alert alert-success">
+      <div class="fw-bold mb-2">✅ Consulta finalizada</div>
+      <div><b>Sucursal:</b> ${app.sucursalElegida}</div>
+      <div><b>Paciente:</b> ${app.pacienteActual.nombre}</div>
+      <div><b>DNI:</b> ${app.pacienteActual.dni}</div>
+      <div><b>Edad:</b> ${app.pacienteActual.edad}</div>
+      <hr class="my-2">
+      <div><b>Cantidad de consultas:</b> ${app.consultas.length}</div>
+      <div class="fw-bold"><b>TOTAL:</b> $${app.total}</div>
+    </div>
+  `;
 
-  do {
-    console.log("Entraste en el formulario para turno en hospital");
-    
-    opcion = parseInt(prompt(
-      "Seleccione una opción:\n" +
-      "1. Pediatría\n" +
-      "2. Traumatología\n" +
-      "3. Psiquiatría\n" +
-      "4. Odontología\n" +
-      "5. Oncología\n" +
-      "6. Cardiología\n" +
-      "7. Ver pacientes registrados\n" +
-      "0. Salir del hospital"
-    ));
+  setMensaje("✅ Consulta finalizada. Resumen generado.", "success");
+  guardarStorage();
+});
 
-    switch (opcion) {
-      case 1:
-        especialidad = "Pediatría";
-        alert("Ingreso a " + especialidad);
-        break;
-      case 2:
-        especialidad = "Traumatología";
-        alert("Ingreso a " + especialidad);
-        break;
-      case 3:
-        especialidad = "Psiquiatría";
-        alert("Ingreso a " + especialidad);
-        break;
-      case 4:
-        especialidad = "Odontología";
-        alert("Ingreso a " + especialidad);
-        break;
-      case 5:
-        especialidad = "Oncología"
-        alert("Ingreso a " + especialidad);
-        break;
-      case 6:
-        especialidad = "Cardiología";
-        alert("Ingreso a " + especialidad);
-        break;
-      case 7:
-        mostrarPacientesRegistrados();
-        continue;
-      case 0:
-        alert("Saliendo del simulador...");
-        break;
-      default:
-        alert("Opción no válida");
-       continue;
-    }
+btnVaciar.addEventListener("click", function () {
+  app.reset();
+  sucursal.value = "";
+  Especialidad.value = "";
+  resumen.innerHTML = "";
 
-    if (opcion === 0) {
-      break;
-    }
-   
-     let precioEstaConsulta = calcularPrecioConsulta(datosPaciente, especialidad, PRECIO_BASE);
-     total += precioEstaConsulta;
-     consultas++;
+  if (pacientesBox) pacientesBox.innerHTML = "";
 
-     let salida = parseInt(prompt(
-            "Para finalizar la consulta ingrese 1.\n" +
-            "Si quiere solicitar otro turno, toque cualquier otra tecla."
-      ));
-
-    if (salida === 1) {
-            mostrarResumenFinal(datosPaciente,sucursalElegida,consultas,total);
-            return;
-            }
-
-  } while (opcion !== 0);
-}
+  limpiarStorage();
+  setMensaje("🧹 Sesión reiniciada.", "secondary");
+  render();
+});
 
 
-
+cargarStorage();
+render();
+setMensaje("Bienvenido. Elegí sucursal, registrá paciente y agregá consultas.", "info");
