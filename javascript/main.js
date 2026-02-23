@@ -1,5 +1,3 @@
-const STORAGE_KEY = "hospitalApp_v1";
-
 class Paciente {
   constructor(nombre, dni, edad) {
     this.nombre = nombre;
@@ -76,6 +74,7 @@ const pacientesIniciales = [
 
 const app = new HospitalApp(pacientesIniciales);
 
+const STORAGE_KEY = "hospitalApp_v1";
 
 const sucursal = document.getElementById("sucursal");
 const nombreInput = document.getElementById("nombre");
@@ -151,16 +150,21 @@ function cargarStorage() {
 
   const data = JSON.parse(datosGuardados);
 
-  app.pacientes = Array.isArray(data.pacientes)
-    ? data.pacientes.map(pacienteData =>
-        new Paciente(
-          pacienteData.nombre,
-          pacienteData.dni,
-          pacienteData.edad
-        )
-      )
-    : [];
+  app.pacientes = [];
 
+  if (Array.isArray(data.pacientes)) {
+    data.pacientes.forEach(pacienteData => {
+      const paciente = new Paciente(
+        pacienteData.nombre,
+        pacienteData.dni,
+        pacienteData.edad
+      );
+
+      app.pacientes.push(paciente);
+    });
+  }
+
+  
   app.sucursalElegida = data.sucursalElegida || "";
   
 
@@ -169,16 +173,19 @@ function cargarStorage() {
     ? new Paciente(data.pacienteActual.nombre, data.pacienteActual.dni, data.pacienteActual.edad)
     : null;
 
-  app.consultas = Array.isArray(data.consultas)
-    ? data.consultas.map(consultaData =>
-        new Consulta(
-          consultaData.especialidad,
-          consultaData.precio
-        )
-      )
-    : [];
+    app.consultas = [];
 
-    return true;
+  if (Array.isArray(data.consultas)) {
+    data.consultas.forEach(consultaData => {
+      const nuevaConsulta = new Consulta(
+        consultaData.especialidad,
+        consultaData.precio
+      );
+
+      app.consultas.push(nuevaConsulta);
+    });
+}
+return true;
 }
 
 function limpiarStorage() {
