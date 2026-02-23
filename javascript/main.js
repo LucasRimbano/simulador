@@ -14,19 +14,15 @@ class Consulta {
 }
 
 class HospitalApp {
-  constructor() {
+  constructor(pacientesIniciales = []) {
   
-    this.pacientes = [
-      new Paciente("Juan", "00000001", 30),
-      new Paciente("María", "00000002", 26),
-      new Paciente("Lucas", "00000003", 22)
-    ];
+    this.pacientes =pacientesIniciales;
 
     this.pacienteActual = null;
     this.sucursalElegida = "";
     this.consultas = [];
-    this.total = 0;
-    this.PRECIO_BASE = 100;
+    
+   
   }
 
   setSucursal(sucursal) {
@@ -48,28 +44,40 @@ class HospitalApp {
   }
 
   agregarConsulta(especialidad) {
-    const precio = calcularPrecioConsulta(this.pacienteActual.edad, this.PRECIO_BASE);
-    const c = new Consulta(especialidad, precio);
-    this.consultas.push(c);
-    this.total += precio;
+    const precio = calcularPrecioConsulta(this.pacienteActual.edad, PRECIO_BASE);
+    const consulta = new Consulta(especialidad, precio);
+    this.consultas.push(consulta);
+    
+  }
+
+  getTotal() {
+    return this.consultas.reduce((acc, c) => acc + c.precio, 0);
   }
 
   reset() {
     this.pacienteActual = null;
     this.sucursalElegida = "";
     this.consultas = [];
-    this.total = 0;
+  
   }
 }
 
-const app = new HospitalApp();
+const PRECIO_BASE = 100;
+
+const pacientesIniciales = [
+  new Paciente("Juan", "39675421", 30),
+  new Paciente("María", "45675422", 26),
+  new Paciente("Lucas", "55675423", 22)
+];
+
+const app = new HospitalApp(pacientesIniciales);
 
 
 const sucursal = document.getElementById("sucursal");
-const Nombre = document.getElementById("nombre");
-const Dni = document.getElementById("dni");
-const elEdad = document.getElementById("edad");
-const Especialidad = document.getElementById("especialidad");
+const nombreInput = document.getElementById("nombre");
+const dniInput = document.getElementById("dni");
+const edadInput = document.getElementById("edad");
+const especialidadInput = document.getElementById("especialidad");
 
 const btnAgregarPaciente = document.getElementById("btn-agregar-paciente");
 const btnVerPacientes = document.getElementById("btn-ver-pacientes");
@@ -78,24 +86,23 @@ const btnFinalizar = document.getElementById("btn-finalizar");
 const btnVaciar = document.getElementById("btn-vaciar");
 
 
-const btnGuardarPacientes = document.getElementById("btn-guardar-pacientes");
-const btnCargarPacientes = document.getElementById("btn-cargar-pacientes");
+
 const btnBorrarPacientes = document.getElementById("btn-borrar-pacientes");
 
-const Estado = document.getElementById("estado-app");
-const Carrito = document.getElementById("carrito");
-const Contador = document.getElementById("contador");
-const Total = document.getElementById("total");
+const elEstado = document.getElementById("estado-app");
+const elCarrito = document.getElementById("carrito");
+const elContador = document.getElementById("contador");
+const elTotal = document.getElementById("total");
 const resumen = document.getElementById("resumen");
 
-const Mensaje = document.getElementById("mensaje");
+const elMensaje = document.getElementById("mensaje");
 const pacientesBox = document.getElementById("pacientesBox");
 
 
 function setMensaje(texto, tipo = "info") {
-  if (!Mensaje) return;
-  Mensaje.className = `alert alert-${tipo}`;
-  Mensaje.textContent = texto;
+  if (!elMensaje) return;
+  elMensaje.className = `alert alert-${tipo}`;
+  elMensaje.textContent = texto;
 }
 
 
@@ -124,17 +131,11 @@ const STORAGE_KEY = "hospitalApp_v1";
 
 function guardarStorage() {
   const data = {
-    
-    pacientes: app.pacientes.map((p) => ({ nombre: p.nombre, dni: p.dni, edad: p.edad })),
+
+    pacientes: app.pacientes,
     sucursalElegida: app.sucursalElegida,
-    total: app.total,
-    PRECIO_BASE: app.PRECIO_BASE,
-
-    pacienteActual: app.pacienteActual
-      ? { nombre: app.pacienteActual.nombre, dni: app.pacienteActual.dni, edad: app.pacienteActual.edad }
-      : null,
-
-    consultas: app.consultas.map((c) => ({ especialidad: c.especialidad, precio: c.precio }))
+    pacienteActual: app.pacienteActual,
+    consultas: app.consultas
   };
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -142,78 +143,96 @@ function guardarStorage() {
 
 function cargarStorage() {
   const datosGuardados = localStorage.getItem(STORAGE_KEY);
-  if (!datosGuardados) return;
+  if (!datosGuardados) return false;
 
   const data = JSON.parse(datosGuardados);
 
   app.pacientes = Array.isArray(data.pacientes)
-    ? data.pacientes.map((p) => new Paciente(p.nombre, p.dni, p.edad))
-    : [
-        new Paciente("Juan", "39675421", 30),
-        new Paciente("María", "45675422", 26),
-        new Paciente("Lucas", "55675423", 22)
-      ];
+    ? data.pacientes.map(pacienteData =>
+        new Paciente(
+          pacienteData.nombre,
+          pacienteData.dni,
+          pacienteData.edad
+        )
+      )
+    : [];
 
   app.sucursalElegida = data.sucursalElegida || "";
-  app.total = typeof data.total === "number" ? data.total : 0;
-  app.PRECIO_BASE = typeof data.PRECIO_BASE === "number" ? data.PRECIO_BASE : 100;
+  
+
 
   app.pacienteActual = data.pacienteActual
     ? new Paciente(data.pacienteActual.nombre, data.pacienteActual.dni, data.pacienteActual.edad)
     : null;
 
   app.consultas = Array.isArray(data.consultas)
-    ? data.consultas.map((c) => new Consulta(c.especialidad, c.precio))
+    ? data.consultas.map(consultaData =>
+        new Consulta(
+          consultaData.especialidad,
+          consultaData.precio
+        )
+      )
     : [];
+
+    return true;
 }
 
 function limpiarStorage() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-const PACIENTES_KEY = "hospital_pacientes_db_v1";
+
 
 
 function borrarPacientesDB() {
-  const ok = confirm("¿Borrar TODOS los pacientes guardados (DB)?");
+  const ok = confirm("¿Borrar TODOS los pacientes guardados?");
   if (!ok) return;
 
-  localStorage.removeItem(PACIENTES_KEY);
+  limpiarStorage();       
   app.pacientes = [];
+  app.pacienteActual = null;
+  app.consultas = [];
 
-  if (pacientesBox) pacientesBox.innerHTML = "";
-  setMensaje("🗑️ DB de pacientes borrada.", "secondary");
+  pacientesBox.innerHTML = "";
+  render();
+  setMensaje("🗑️ Datos eliminados.", "secondary");
+  guardarStorage();
 }
 
 
 function render() {
-  if (!Carrito || !Contador || !Total || !Estado) return;
+  if (!elCarrito || !elContador || !elTotal || !elEstado) return;
 
-  Carrito.innerHTML = "";
+  elCarrito.innerHTML = "";
 
   if (app.consultas.length === 0) {
-    Carrito.innerHTML = `<div class="text-muted">Todavía no hay consultas.</div>`;
+    elCarrito.innerHTML = `<div class="text-muted">Todavía no hay consultas.</div>`;
   } else {
-    app.consultas.forEach(function (c, i) {
-      Carrito.innerHTML += `
+    let htmlCarrito = "";
+
+    app.consultas.forEach(function (consulta, i) {
+      htmlCarrito += `
         <div class="border rounded-3 p-3 mb-2">
           <div class="d-flex justify-content-between">
-            <strong>${i + 1}. ${c.especialidad}</strong>
-            <span class="fw-semibold">$${c.precio}</span>
+            <strong>${i + 1}. ${consulta.especialidad}</strong>
+            <span class="fw-semibold">$${consulta.precio}</span>
           </div>
         </div>
       `;
     });
+
+    elCarrito.innerHTML = htmlCarrito;
+
   }
 
-  Contador.textContent = String(app.consultas.length);
-  Total.textContent = `$${app.total}`;
+  elContador.textContent = String(app.consultas.length);
+  elTotal.textContent = `$${app.getTotal()}`;
 
   // estado
   let msg = "Elegí sucursal, registrá un paciente y cargá consultas.";
   if (app.sucursalElegida) msg = `Sucursal: ${app.sucursalElegida}.`;
   if (app.pacienteActual) msg += ` Paciente: ${app.pacienteActual.nombre} (${app.pacienteActual.edad}).`;
-  Estado.textContent = msg;
+  elEstado.textContent = msg;
 
 
   if (sucursal && app.sucursalElegida) {
@@ -235,8 +254,8 @@ function renderPacientesLista() {
 
   let html = `<h3 class="h6 fw-bold mt-3">📌 Pacientes registrados</h3><ol class="mb-0">`;
 
-  listaOrdenada.forEach((p) => {
-    html += `<li><b>${p.nombre}</b> — DNI: ${p.dni} — Edad: ${p.edad}</li>`;
+  listaOrdenada.forEach((paciente) => {
+    html += `<li><b>${paciente.nombre}</b> — DNI: ${paciente.dni} — Edad: ${paciente.edad}</li>`;
   });
 
   html += `</ol>`;
@@ -255,9 +274,9 @@ btnAgregarPaciente?.addEventListener("click", function () {
   const suc = sucursal?.value;
   if (!suc) return setMensaje("❌ Elegí una sucursal primero.", "danger");
 
-  const nombre = Nombre.value.trim();
-  const dni = Dni.value.trim();
-  const edadStr = elEdad.value.trim();
+  const nombre = nombreInput.value.trim();
+  const dni = dniInput.value.trim();
+  const edadStr = edadInput.value.trim();
 
   if (!nombre || !esNombreValido(nombre)) return setMensaje("❌ Nombre inválido (solo letras y espacios).", "danger");
   if (!dni || !esDniValido(dni)) return setMensaje("❌ DNI inválido (8 cifras).", "danger");
@@ -268,9 +287,9 @@ btnAgregarPaciente?.addEventListener("click", function () {
 
   setMensaje("✅ Paciente agregado: " + nombre, "success");
 
-  Nombre.value = "";
-  Dni.value = "";
-  elEdad.value = "";
+  nombreInput.value = "";
+  dniInput.value = "";
+  edadInput.value = "";
 
 
   guardarStorage();
@@ -291,7 +310,7 @@ btnAgregarConsulta?.addEventListener("click", function () {
   if (!app.sucursalElegida) return setMensaje("❌ Elegí una sucursal.", "danger");
   if (!app.pacienteActual) return setMensaje("❌ Primero registrá un paciente.", "danger");
 
-  const esp = Especialidad.value;
+  const esp = especialidadInput.value;
   if (!esp) return setMensaje("❌ Elegí una especialidad.", "danger");
 
   app.agregarConsulta(esp);
@@ -315,7 +334,7 @@ btnFinalizar?.addEventListener("click", function () {
       <div><b>Edad:</b> ${app.pacienteActual.edad}</div>
       <hr class="my-2">
       <div><b>Cantidad de consultas:</b> ${app.consultas.length}</div>
-      <div class="fw-bold"><b>TOTAL:</b> $${app.total}</div>
+      <div class="fw-bold"><b>TOTAL:</b> $${app.getTotal()}</div>
     </div>
   `;
 
@@ -326,7 +345,7 @@ btnFinalizar?.addEventListener("click", function () {
 btnVaciar?.addEventListener("click", function () {
   app.reset();
   if (sucursal) sucursal.value = "";
-  if (Especialidad) Especialidad.value = "";
+  if (especialidadInput) especialidadInput.value = "";
   if (resumen) resumen.innerHTML = "";
   if (pacientesBox) pacientesBox.innerHTML = "";
 
@@ -340,6 +359,10 @@ btnVaciar?.addEventListener("click", function () {
 btnBorrarPacientes?.addEventListener("click", borrarPacientesDB);
 
 
-cargarStorage();
+const cargoStorage = cargarStorage();
+if (!cargoStorage) {
+  app.pacientes = pacientesIniciales;
+}
+
 render();
 setMensaje("Bienvenido. Elegí sucursal, registrá paciente y agregá consultas.", "info");
