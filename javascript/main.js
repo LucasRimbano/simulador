@@ -1,3 +1,5 @@
+const STORAGE_KEY = "hospitalApp_v1";
+
 class Paciente {
   constructor(nombre, dni, edad) {
     this.nombre = nombre;
@@ -50,10 +52,12 @@ class HospitalApp {
     
   }
 
-  getTotal() {
-    return this.consultas.reduce((acc, c) => acc + c.precio, 0);
+    getTotal() {
+    return this.consultas.reduce(
+      (total, consulta) => total + consulta.precio,
+      0
+    );
   }
-
   reset() {
     this.pacienteActual = null;
     this.sucursalElegida = "";
@@ -127,7 +131,7 @@ function calcularPrecioConsulta(edad, precioBase) {
 }
 
 
-const STORAGE_KEY = "hospitalApp_v1";
+
 
 function guardarStorage() {
   const data = {
@@ -206,22 +210,37 @@ function render() {
   elCarrito.innerHTML = "";
 
   if (app.consultas.length === 0) {
-    elCarrito.innerHTML = `<div class="text-muted">Todavía no hay consultas.</div>`;
+    const mensaje = document.createElement("div");
+    mensaje.className = "text-muted";
+    mensaje.textContent = "Todavía no hay consultas.";
+    elCarrito.appendChild(mensaje);
   } else {
-    let htmlCarrito = "";
-
     app.consultas.forEach(function (consulta, i) {
-      htmlCarrito += `
-        <div class="border rounded-3 p-3 mb-2">
-          <div class="d-flex justify-content-between">
-            <strong>${i + 1}. ${consulta.especialidad}</strong>
-            <span class="fw-semibold">$${consulta.precio}</span>
-          </div>
-        </div>
-      `;
+    
+      const card = document.createElement("div");
+      card.className = "border rounded-3 p-3 mb-2";
+
+      const flex = document.createElement("div");
+      flex.className = "d-flex justify-content-between";
+
+
+      const titulo = document.createElement("strong");
+      titulo.textContent = `${i + 1}. ${consulta.especialidad}`;
+
+
+      const precio = document.createElement("span");
+      precio.className = "fw-semibold";
+      precio.textContent = `$${consulta.precio}`;
+
+      
+      flex.appendChild(titulo);
+      flex.appendChild(precio);
+
+      card.appendChild(flex);
+      elCarrito.appendChild(card);
+
     });
 
-    elCarrito.innerHTML = htmlCarrito;
 
   }
 
@@ -243,8 +262,14 @@ function render() {
 function renderPacientesLista() {
   if (!pacientesBox) return;
 
+
+  pacientesBox.innerHTML = "";
+
   if (app.pacientes.length === 0) {
-    pacientesBox.innerHTML = `<div class="text-muted">No hay pacientes registrados todavía.</div>`;
+    const mensaje = document.createElement("div");
+    mensaje.className = "text-muted";
+    mensaje.textContent = "No hay pacientes registrados todavía.";
+    pacientesBox.appendChild(mensaje);
     return;
   }
 
@@ -252,14 +277,28 @@ function renderPacientesLista() {
     .slice()
     .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-  let html = `<h3 class="h6 fw-bold mt-3">📌 Pacientes registrados</h3><ol class="mb-0">`;
+   
+  const titulo = document.createElement("h3");
+  titulo.className = "h6 fw-bold mt-3";
+  titulo.textContent = "📌 Pacientes registrados";
+  const ol = document.createElement("ol");
+  ol.className = "mb-0";
+
 
   listaOrdenada.forEach((paciente) => {
-    html += `<li><b>${paciente.nombre}</b> — DNI: ${paciente.dni} — Edad: ${paciente.edad}</li>`;
+
+     const li = document.createElement("li");
+     const nombre = document.createElement("b");
+     nombre.textContent = paciente.nombre;
+
+     li.appendChild(nombre);
+     li.append(` — DNI: ${paciente.dni} — Edad: ${paciente.edad}`);
+     ol.appendChild(li);
+
   });
 
-  html += `</ol>`;
-  pacientesBox.innerHTML = html;
+  pacientesBox.appendChild(titulo);
+  pacientesBox.appendChild(ol);
 }
 
 
